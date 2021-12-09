@@ -1,132 +1,46 @@
 package com.project.server;
+import com.project.common.*;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
-import com.project.common.Function;
-import java.io.*;//입출력 (서버와 클라이언트 통신)
-import java.net.*; //다른 컴퓨터와 연결
 
-public class Server implements Runnable {
-    private ServerSocket ss;
-    private final int PORT = 1120;
-    private Vector<Client> waitVc = new Vector<Client>();
-    // 쓰레드에서 동기화 프로그램
+public class Server implements Runnable{
+    //Server클래스: 소켓을 통한 접속서비스, 접속클라이언트 관리
+    Vector<Service> allV;//모든 사용자(대기실사용자 + 대화방사용자)
+    Vector<Service> waitV;//대기실 사용자
+    Vector<Room> roomV;//개설된 대화방 Room-vs(Vector) : 대화방사용자
+    int roomIdx = 0;
 
-    // 서버 가동
     public Server() {
-        try {
-            ss = new ServerSocket(PORT);
-            // bind() => IP, PORT 묶어주는 역할 ==>  listen() => 대기상태(클라이언트가 접속하기 전까지 대기)
-            System.out.println("Server Start...");
-        } catch (Exception ex) {
-        }
-    }
+        allV = new Vector<>();
+        waitV = new Vector<>();
+        roomV = new Vector<>();
 
-    // 클라이언트가 접속을 했을 경우 => 각자 통신이 가능하게 쓰레드와 연결
+        //Thread t = new Thread(run메소드의 위치);  t.start();
+        new Thread(this).start();
+    }//생성자
+
     @Override
-    public void run() {
+    public void run(){
         try {
-            while (true) {
-                Socket s = ss.accept();
-                // accept() : 특수한 메소드 => 클라이언트가 접속시에만 호출되는 메소드
-                Client client = new Client(s);
-                client.start(); // 클라이언트와 통신 승인
+            ServerSocket ss = new ServerSocket(1120);
+            System.out.println("Start Server...");
+
+            while(true){
+                Socket s = ss.accept();//클라이언트 접속 대기
+                //s: 접속한 클라이언트의 소켓정보
+                Service ser = new Service(s, this);
+                //allV.add(ser);//전체사용자에 등록
+                //waitV.add(ser);//대기실사용자에 등록
             }
-        } catch (Exception ex) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
+    }//run
 
     public static void main(String[] args) {
-        //서버가동
-        Server server = new Server();
-        new Thread(server).start();
-        //Server 클래스에 있는 run을 호출
-
-    }
-
-    // 내부 클래스 => Server가 가지고 있는 데디터 쉽게 공유가 가능하게 만든다
-    class Client extends Thread {
-        // 클라이언트와 연결
-        Socket s;
-        // 클라이언트로부터 요청을 받는다
-        BufferedReader in;
-        // 요청을 처리한 다음에 결과를 응답
-        OutputStream out;
-        String id, name, pos;
-
-        public Client(Socket s) {
-            try {
-                this.s = s;
-                in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                // 클라이언트 요청한 메소드를 읽어오는 메모리 공간
-                out = s.getOutputStream();
-            } catch (Exception ex) {
-            }
-        }
-
-        // 통신 ? => 기능(요청처리)
-        public void run() {
-            try {
-                while (true) {
-                    // 클라이언트가 요청한 내용 받는다
-                    String msg = in.readLine();
-                    StringTokenizer st = new StringTokenizer(msg, "|");
-                    int protocol = Integer.parseInt(st.nextToken());
-                    // 100|id|대화명
-                    switch (protocol) {
-                        case Function.LOGIN: {
-                            // 로그인처리
-                            // 데이터 값 받기
-                            id = st.nextToken();
-                            name = st.nextToken();
-                            pos = "대기실"; // 사용자의 기본정보
-
-                            // 접속한 모든 사용자 => 로그인한 정보를 보내준다
-                            messageAll(Function.LOGIN + "|" + id + "|" + name + "|" + pos);
-                            // 접속한 사람의 정보를 저장
-                            waitVc.add(this);
-                            // Client client=new Client();
-                            messageTo(Function.MYLOG + "|" + id);
-                            // 로그인창에서 => 대기창으로 변경
-                            for (Client user : waitVc) {
-                                messageTo(
-                                        Function.LOGIN + "|" + user.id + "|" + user.name + "|" + user.pos);
-                            }
-                            // 입장 메세지 출력
-                            messageAll(Function.WAITCHAT + "|[☞" + name + "님이 입장하셨습니다.");
-                            // 개설된 방정보 전송
-                        }
-                        break;
-                        case Function.WAITCHAT: {
-                            messageAll(Function.WAITCHAT + "|[" + name + "]" + st.nextToken());
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-            }
-
-        }
-
-        // 응답처리
-        public synchronized void messageTo(String msg) {
-            // synchronized
-            /*
-             * 쓰레드는 default : 비동기화 synchronized => 동기화
-             */
-            try {
-                out.write((msg + "\n").getBytes()); // 데이터를 1명한테만 보내는 거
-                // 인코딩 ==> 디코딩
-            } catch (Exception ex) {
-            }
-        }
-
-        // 전체적으로 응답
-        public synchronized void messageAll(String msg) {
-            try {
-                for (Client user : waitVc) {
-                    user.messageTo(msg);
-                }
-            } catch (Exception ex) {
-            }
-        }
+        new Server();
     }
 }

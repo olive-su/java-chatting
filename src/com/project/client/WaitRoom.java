@@ -1,45 +1,59 @@
 package com.project.client;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.border.TitledBorder;
 
-public class WaitRoom extends JPanel {
-    JTable table1, table2;
-    DefaultTableModel model1, model2;
-    JTextField tf;
-    JTextArea ta;
-    JButton b1, b2, b3, b4, b5, b6;
-    JScrollBar bar;
+public class WaitRoom extends JFrame{
+    JList<String> roomInfo, roomUser, waitInfo;
+    JScrollPane sp_roomInfo, sp_roomUser, sp_waitInfo;
+    JButton bt_create, bt_enter, bt_exit;
+
+    JPanel p;
 
     public WaitRoom() {
+        setTitle("ʚ 버디메신저 ❧ 대기실 ɞ");
 
-        String[] col2 = { "대화 참여자" };
-        String[][] row2 = new String[0][2];
+        roomInfo = new JList<String>();
+        roomInfo.setBorder(new TitledBorder("방 정보"));
 
-        model2 = new DefaultTableModel(row2, col2);
-        table2 = new JTable(model2);
-        JScrollPane js2 = new JScrollPane(table2);
+        roomUser = new JList<String>();
+        roomUser.setBorder(new TitledBorder("인원 정보"));
+        waitInfo = new JList<String>();
+        waitInfo.setBorder(new TitledBorder("대기실 정보"));
 
-        ta = new JTextArea();
-        ta.setEditable(false);
-        JScrollPane js3 = new JScrollPane(ta);
-        bar = js3.getVerticalScrollBar();
+        sp_roomInfo = new JScrollPane(roomInfo);
+        sp_roomUser = new JScrollPane(roomUser);
+        sp_waitInfo = new JScrollPane(waitInfo);
 
-        tf = new JTextField();
+        bt_create = new JButton("방 만들기");
+        bt_enter = new JButton("입장하기");
+        bt_exit = new JButton("나가기");
 
-        // 배치
-        setLayout(null);
-//        js1.setBounds(10, 15, 600, 500);
-        js2.setBounds(440, 15, 160, 420);
-//        add(js1);
-        add(js2);
+        p = new JPanel();
 
-        js3.setBounds(10, 15, 420, 380);
-        add(js3);
+        sp_roomInfo.setBounds(10, 10, 300, 300);
+        sp_roomUser.setBounds(320, 10, 150, 300);
+        sp_waitInfo.setBounds(10, 320, 300, 130);
 
-        tf.setBounds(10, 402, 420, 30);
-        add(tf);
+        bt_create.setBounds(320, 330, 150, 30);
+        bt_enter.setBounds(320, 370, 150, 30);
+        bt_exit.setBounds(320, 410, 150, 30);
+
+        p.setLayout(null);
+        p.setBackground(new Color(178, 204, 255));
+        p.add(sp_roomInfo);
+        p.add(sp_roomUser);
+        p.add(sp_waitInfo);
+        p.add(bt_create);
+        p.add(bt_enter);
+        p.add(bt_exit);
+
+        add(p);
+        setBounds(300, 200, 500, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
     }
+
 }

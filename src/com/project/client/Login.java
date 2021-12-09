@@ -4,38 +4,50 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
-public class Login extends JPanel{
+public class Login extends JFrame{
     private Image back;
-    private JLabel la1, la2, la3, la4;
+    private JLabel l1, l2;
     JTextField tf;       // default로 지정하여 ClientMainForm에서 이용
     JTextField pf;   // default로 지정하여 ClientMainForm에서 이용
     JButton b1,b2;      // default로 지정하여 ClientMainForm에서 이용
 
+    static JPanel title=new JPanel() { // 타이틀 이미지 추가
+        Image image=new ImageIcon(Login.class.getResource("./image/logo.png")).getImage();
+        public void paint(Graphics g) {//그리는 함수
+            g.drawImage(image, 0, 0, null);//background를 그려줌
+        }
+    };
+
+    static JPanel background=new JPanel() { // 배경 이미지 추가
+        Image background=new ImageIcon(Login.class.getResource("./image/background.jpg")).getImage();
+        public void paint(Graphics g) {
+        g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+        }
+    };
+
     public Login()
     {
+        setSize(500, 500);
+        setTitle("ʚ 버디메신저 ❧ 로그인 ɞ");
         //이미지 정보 읽기
-        back=Toolkit.getDefaultToolkit().getImage("C:\\Users\\1466s\\IdeaProjects\\java_chatting_project\\image\\background.jpg");
+//        back=Toolkit.getDefaultToolkit().getImage("C:\\Users\\1466s\\IdeaProjects\\java_chatting_project\\image\\background.jpg");
         setLayout(null); //직접 배치
-        la1=new JLabel("버디메신저", JLabel.CENTER);
-        la1.setFont(new Font("", Font.BOLD, 50));
-        la1.setBounds(160, 100, 300, 70);
-        add(la1);
-        la2=new JLabel("made by. Kim Su Gyeong", JLabel.CENTER);
-        la2.setBounds(160, 160, 300, 70);
-        add(la2);
+        title.setLayout(null); //레이아웃 설정하기 위해.
+        title.setBounds(80, 80, 400, 600);//패널의 위치와 크기.
+        add(title);//프레임에 패널을 추가
         //로그인 부분 아이디와 아이디 칠 textField
-        la3=new JLabel("아이디",JLabel.RIGHT);
-        la3.setBounds(180, 250, 80, 30);
+        l1=new JLabel("아이디",JLabel.RIGHT);
+        l1.setBounds(100, 250, 80, 30);
         tf=new JTextField();
-        tf.setBounds(265, 250, 150, 30);
-        add(la3); add(tf);
+        tf.setBounds(185, 250, 150, 30);
+        add(l1); add(tf);
 
         //로그인 부분 비밀번호와 비밀번호 칠 textField
-        la4=new JLabel("비밀번호",JLabel.RIGHT);
-        la4.setBounds(180, 295, 80, 30);
+        l2=new JLabel("비밀번호",JLabel.RIGHT);
+        l2.setBounds(100, 295, 80, 30);
         pf=new JPasswordField();
-        pf.setBounds(265, 295, 150, 30);
-        add(la4); add(pf);
+        pf.setBounds(185, 295, 150, 30);
+        add(l2); add(pf);
 
         b1 = new JButton("로그인");
         b2 = new JButton("회원가입");
@@ -43,8 +55,12 @@ public class Login extends JPanel{
         p.add(b1);
         p.add(b2);
         p.setOpaque(false); // setOpaque -투명모드
-        p.setBounds(200, 345, 235, 35);
+        p.setBounds(120, 345, 235, 35);
         add(p);
+        background.setLayout(null);
+        background.setBounds(0, 0, 500, 500);
+        add(background);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     public boolean loginCheck(String userId, String userPassword) {
@@ -76,9 +92,13 @@ public class Login extends JPanel{
                 if (getPass.equals(userPassword)) {
                     flag = true;
                 } else {
-                System.out.println("비밀번호가 일치하지 않습니다."); }
+                JOptionPane.showMessageDialog(null, "비밀번호가 일치하지 않습니다.");
+                System.out.println("비밀번호 불일치"); }
             }
-            else {System.out.print("아이디가 존재하지 않습니다.");};
+            else {
+                JOptionPane.showMessageDialog(null, "아이디가 존재하지 않습니다.");
+                System.out.print("아이디 미존재");
+            };
 
         } catch (Exception e){
             e.printStackTrace();
@@ -101,11 +121,5 @@ public class Login extends JPanel{
         return flag;
     }
 
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        // TODO Auto-generated method stub
-        g.drawImage(back, 0, 0, getWidth(), getHeight(), this);
-    }
 
 }
